@@ -36,16 +36,16 @@ app.all("*", (req: Request, res: Response) => {
   });
 });
 
-db.sequelize.sync()
-  .then(() => {
-    console.log("Synced db.");
-  })
-  .catch((err:any) => {
-    console.log("Failed to sync db: " + err.message);
-  });
+// db.sequelize.sync()
+//   .then(() => {
+//     console.log("Synced db.");
+//   })
+//   .catch((err:any) => {
+//     console.log("Failed to sync db: " + err.message);
+//   });
 
 
-const PORT = 3000;
+const PORT = 3001;
 app.listen(PORT, async () => {
   console.log("🚀Server started Successfully");
 });
