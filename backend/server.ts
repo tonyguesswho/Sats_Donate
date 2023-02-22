@@ -4,7 +4,7 @@ import morgan from "morgan";
 import bodyParser from 'body-parser';
 import routes from './routes';
 import cors from 'cors';
-
+import {initNode} from "./helpers/node";
 
 
 //Database Connection
@@ -46,6 +46,13 @@ app.all("*", (req: Request, res: Response) => {
 
 
 const PORT = 3001;
-app.listen(PORT, async () => {
-  console.log("🚀Server started Successfully");
+
+// Initialize node & server
+console.log('Initializing Lightning node...');
+initNode().then(() => {
+  console.log('Lightning node initialized!');
+  console.log('Starting server...');
+  app.listen(PORT, async () => {
+    console.log("🚀Server started Successfully");
+  });
 });

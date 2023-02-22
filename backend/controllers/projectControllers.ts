@@ -18,12 +18,13 @@ class ProjectController {
   static async listProjects(req: Request, res:Response) {
     try {
 
-      const projects =  await Project.findAll();
+      const projects =  await Project.findAll({include: ['donations']});
       return res.status(200).json({
         message: "Projects retrieved susscessfully",
         data: projects
       });
     } catch (error) {
+      console.log(error, "rrrr")
       res.status(500).json({ error: 'Internal Server Error' });
     }
   }
