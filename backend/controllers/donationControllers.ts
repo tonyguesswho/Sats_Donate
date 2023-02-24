@@ -28,7 +28,7 @@ class NodeController {
       const invoice = await node.addInvoice({
         memo: `Donation #${projectId}${newDonation.id}`,
         value: amount,
-        expiry: '120', // 2 minutes
+        expiry: '12000', // 2 minutes
       });
       return res.status(200).json({
         message: "Project created",

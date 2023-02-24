@@ -4,12 +4,23 @@ import morgan from "morgan";
 import bodyParser from 'body-parser';
 import routes from './routes';
 import cors from 'cors';
-import {initNode} from "./helpers/node";
+import {initNode, node} from "./helpers/node";
+import http from 'http';
+const socketIo = require('socket.io')
+
 
 
 //Database Connection
 const db = require('./models');
 const app = express();
+
+const server = http.createServer(app)
+const io = socketIo(server,{
+    cors: {
+      origin: 'http://localhost:3000'
+    }
+})
+
 
 // App middlewares
 app.use(cors());
@@ -36,23 +47,24 @@ app.all("*", (req: Request, res: Response) => {
   });
 });
 
-// db.sequelize.sync()
-//   .then(() => {
-//     console.log("Synced db.");
-//   })
-//   .catch((err:any) => {
-//     console.log("Failed to sync db: " + err.message);
-//   });
-
-
 const PORT = 3001;
+
 
 // Initialize node & server
 console.log('Initializing Lightning node...');
 initNode().then(() => {
   console.log('Lightning node initialized!');
   console.log('Starting server...');
-  app.listen(PORT, async () => {
+  io.on('connection', (socket:any) => {
+    console.log('a user connected');
+    let stream = node.subscribeInvoices({})
+    stream.on('data', (data) => {
+      if (data.settled === true) {
+        socket.emit('payment-completed', data);
+      }
+    });
+});
+  server.listen(PORT, async () => {
     console.log("🚀Server started Successfully");
   });
 });

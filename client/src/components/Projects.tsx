@@ -22,28 +22,29 @@ import {
   ModalBody,
   ModalFooter,
   useDisclosure,
-  useClipboard
+  useClipboard,
+  Badge,
+  Center,
 } from '@chakra-ui/react';
-// import { QueryClient, QueryClientProvider, useQuery } from "react-query";
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import QRCode from 'react-qr-code'
+import io from 'socket.io-client';
+import { NavLink } from 'react-router-dom';
 
 function ProjectItem({ name, description, index, id }:any) {
   const [amount, setAmount] = useState(1000);
   const [invoice, setInvoice] = useState(null)
+  const [paid, setPaid] = useState(false)
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { onCopy, value, setValue, hasCopied } = useClipboard("");
-
   const handleDonate = (id:number) => {
-    console.log(id, "pppp", amount)
+    setPaid(false)
     axios.post(`${process.env.REACT_APP_API_URL}/donation`, {amount, projectId:id})
       .then(async(response )=> {
         if(response.statusText === "OK"){
-          console.log(response, "gggg")
           setInvoice(response.data.data.paymentRequest)
           setValue(response.data.data.paymentRequest)
-          const dataInvoiceStream = await (await fetch(`${process.env.REACT_APP_API_URL}/node/check`)).json()
           onOpen()
         }
 
@@ -55,6 +56,25 @@ function ProjectItem({ name, description, index, id }:any) {
 
 
   const handleAmountChange = (value:any) => setAmount(value)
+
+  useEffect(() => {
+    const socket = io(process.env.REACT_APP_API_URL || "");
+    socket.on('connect', () => {
+      console.log('connected to server');
+    });
+    socket.on('payment-completed', (d) => {
+      checkinvoice(d.paymentRequest)
+    });
+    return () => {
+      socket.disconnect();
+    };
+  }, [invoice, paid]);
+
+  const checkinvoice = (paymentRequest: string)=>{
+    if(paymentRequest === invoice){
+      setPaid(true);
+    }
+  }
 
   return (
     <>
@@ -127,13 +147,14 @@ function ProjectItem({ name, description, index, id }:any) {
   <Modal onClose={onClose} isOpen={isOpen} isCentered>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Ligthning Payment Invoice</ModalHeader>
+          <ModalHeader><Center>Ligthning Payment Invoice</Center></ModalHeader>
+          <Center><Badge colorScheme={paid ? 'green' : 'red'} p={4}>{paid ? "Paid": "Unpaid"}</Badge></Center>
           <ModalCloseButton />
           <ModalBody>
           <Box  textAlign="center">
-          <QRCode value={invoice || ""}/>
+          <Center> <QRCode value={invoice || ""}/></Center>
           <Text mt={4}>{invoice}</Text>
-          <Button onClick={onCopy}>{hasCopied ? "Copied!" : "Copy"}</Button>
+          <Button onClick={onCopy}  colorScheme={'blue'}>{hasCopied ? "Copied!" : "Copy"}</Button>
           </Box>
           </ModalBody>
           <ModalFooter>
@@ -156,13 +177,15 @@ const Features = () => {
     .catch(error => {
       console.log(error);
     });
-  }, []);
+  }, [projects]);
 
   return (
     <Container maxW="6xl" p={{ base: 5, md: 10 }}>
+      <NavLink to="/">
       <chakra.h3 fontSize="4xl" fontWeight="bold" mb={20} textAlign="center">
         Projects
       </chakra.h3>
+      </NavLink>
       <SimpleGrid columns={{ base: 1, sm: 2, md: 3 }} placeItems="center" spacing={10} mb={4}>
         {projects.map((project:any, index) => (
           <ProjectItem name={project.name} description={project.description} index={index} id={project.id} />
