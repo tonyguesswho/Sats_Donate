@@ -1,7 +1,7 @@
 # Sats Donate
 
 ### Description
-A platform that enbales donation using ligtening newtwork
+A platform that enbales donation using the Bitcoin lightning netwrok
 
 
 ### Setup Instruction
