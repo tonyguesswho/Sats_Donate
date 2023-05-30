@@ -1,7 +1,7 @@
 # Sats Donate
 
 ### Description
-A platform that enbales donation using the Bitcoin lightning network
+A platform that enables donation using the Bitcoin lightning network
 
 
 ### Setup Instruction
