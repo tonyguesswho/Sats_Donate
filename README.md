@@ -22,7 +22,7 @@ A platform that enbales donation using the Bitcoin lightning netwrok
 - Users can create a project
 - Users can view list of projects
 - Users can donate to a project
-- A litening invoice will be created for the payment
+- A lightning invoice will be created for the payment
 
 ### Technologies used
 - Javascript(Typescript)
